@@ -1,0 +1,48 @@
+{
+  "name": "idle-nations",
+  "version": "1.0.0",
+  "description": "A nation-building idler game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DigitalMugen/idle-nations.git"
+  },
+  "author": "Bill Robitske, Jr. <bill.robitske.jr@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DigitalMugen/idle-nations/issues"
+  },
+  "homepage": "https://github.com/DigitalMugen/idle-nations#readme",
+  "devDependencies": {
+    "babel-loader": "^6.2.10",
+    "babel-preset-latest": "^6.22.0",
+    "del": "^2.2.2",
+    "eslint": "^3.14.0",
+    "eslint-config-airbnb": "^14.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^3.0.2",
+    "eslint-plugin-react": "^6.9.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-eslint": "^3.0.1",
+    "webpack": "^1.14.0",
+    "webpack-stream": "^3.2.0"
+  },
+  "babel": {
+    "presets": [
+      "latest"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "airbnb",
+    "plugins": [
+      "import"
+    ],
+    "env": {
+      "browser": true
+    }
+  }
+}
