@@ -8,13 +8,13 @@
  */
 
 /**
- * WeakMaps for private data
+ * Symbols for private data
  */
-const populations = new WeakMap();
-const birthRates = new WeakMap();
-const deathRates = new WeakMap();
-const immigrationRates = new WeakMap();
-const emmigrationRates = new WeakMap();
+const population = Symbol('population');
+const birthRate = Symbol('birthRate');
+const deathRate = Symbol('deathRate');
+const immigrationRate = Symbol('immigrationRate');
+const emmigrationRate = Symbol('emmigrationRate');
 
 /**
  * Population encapsulation
@@ -23,11 +23,11 @@ const emmigrationRates = new WeakMap();
  */
 export default class Population {
   constructor() {
-    populations.set(this, 0);
-    birthRates.set(this, 0);
-    deathRates.set(this, 0);
-    immigrationRates.set(this, 0);
-    emmigrationRates.set(this, 0);
+    this[population] = 0;
+    this[birthRate] = 0;
+    this[deathRate] = 0;
+    this[immigrationRate] = 0;
+    this[emmigrationRate] = 0;
   }
 
   /**
@@ -35,8 +35,8 @@ export default class Population {
    *
    * @return  {Number}  Current population
    */
-  get currentPopulation() {
-    return Math.round(populations.get(this));
+  get population() {
+    return Math.round(this[population]);
   }
 
   /**
@@ -45,7 +45,7 @@ export default class Population {
    * @return  {Number}  Current birth rate
    */
   get birthRate() {
-    return birthRates.get(this);
+    return this[birthRate];
   }
 
   /**
@@ -54,7 +54,7 @@ export default class Population {
    * @return  {Number}  Current death rate
    */
   get deathRate() {
-    return deathRates.get(this);
+    return this[deathRate];
   }
 
   /**
@@ -63,7 +63,7 @@ export default class Population {
    * @return  {Number}  Current immigration rate
    */
   get immigrationRate() {
-    return immigrationRates.get(this);
+    return this[immigrationRate];
   }
 
   /**
@@ -72,7 +72,7 @@ export default class Population {
    * @return  {Number}  Current emmigration rate
    */
   get emmigrationRate() {
-    return emmigrationRates.get(this);
+    return this[emmigrationRate];
   }
 
   /**
@@ -80,8 +80,34 @@ export default class Population {
    * immigration rate, and emmigration rate.
    */
   tickPopulationGrowth() {
-    const increase = this.currentPopulation * (this.birthRate + this.immigrationRate);
-    const decrease = this.currentPopulation * (this.deathRate + this.emmigrationRate);
-    populations.set(this, populations.get(this) + (increase - decrease));
+    const increase = this.population * (this.birthRate + this.immigrationRate);
+    const decrease = this.population * (this.deathRate + this.emmigrationRate);
+    this[population] = this[population] + (increase - decrease);
+  }
+
+  /**
+   * Updates the current birth rate based on the current population, food, and
+   * territory.
+   *
+   * @param   {Number}  food        Current food
+   * @param   {Number}  territory   Current territory
+   */
+  updateBirthRate(food = 0, territory = 0) {
+    const undercrowding = Math.log((1 + (this.population / (1 + territory))) / 50);
+    const baseRate = (1 / 1040) * undercrowding;
+    this[birthRate] = baseRate > 2 ? 1 - ((baseRate - 2) / baseRate) : baseRate;
+  }
+
+  /**
+   * Updates the current death rate based on the current population, food, and
+   * territory.
+   *
+   * @param   {Number}  food        Current food
+   * @param   {Number}  territory   Current territory
+   */
+  updateDeathRate(food = 0, territory = 0) {
+    const hunger = 1 / Math.min((this.population - food) / this.population, 1);
+    const suicide = Math.min(1 / Math.log((this.population / (1 + territory)) / 777), 1);
+    this[deathRate] = (1 / 3640) * hunger * suicide;
   }
 }
