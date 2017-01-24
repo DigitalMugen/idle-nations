@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Idle Nations Testing</title>
+    <script src="idle-nations.bundle.js"></script>
+  </head>
+  <body>
+    <p><label>Starting Population: <input type="text" id="startingPopulation" value="10"></label></p>
+    <p><label>Food: <input type="text" id="food" value="10"></label></p>
+    <p><label>Territory: <input type="text" id="territory" value="1"></label></p>
+    <p><button id="restartButton">Restart</button></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Tick</th>
+          <th>Population</th>
+          <th>Food</th>
+          <th>Territory</th>
+          <th>Birth Rate</th>
+          <th>Death Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th id="gameTime"></th>
+          <td id="currentPopulation"></td>
+          <td id="currentFood"></td>
+          <td id="currentTerritory"></td>
+          <td id="currentBirthRate"></td>
+          <td id="currentDeathRate"></td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>
