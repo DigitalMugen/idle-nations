@@ -10,11 +10,19 @@
 /**
  * Symbols for private data
  */
-const population = Symbol('population');
-const birthRate = Symbol('birthRate');
-const deathRate = Symbol('deathRate');
-const immigrationRate = Symbol('immigrationRate');
-const emmigrationRate = Symbol('emmigrationRate');
+const sPopulation = Symbol('population');
+const sBirthRate = Symbol('birthRate');
+const sDeathRate = Symbol('deathRate');
+const sImmigrationRate = Symbol('immigrationRate');
+const sEmmigrationRate = Symbol('emmigrationRate');
+
+function populationHunger(population = 1, food = 0) {
+  return population > 0 ? Math.max(population - food, 0) / population : 0;
+}
+
+function populationDensity(population = 0, territory = 1) {
+  return territory > 0 ? population / territory : Number.POSITIVE_INFINITY;
+}
 
 /**
  * Population encapsulation
@@ -22,12 +30,12 @@ const emmigrationRate = Symbol('emmigrationRate');
  * @class
  */
 export default class Population {
-  constructor(startingPopulation = 0) {
-    this[population] = startingPopulation;
-    this[birthRate] = 0;
-    this[deathRate] = 0;
-    this[immigrationRate] = 0;
-    this[emmigrationRate] = 0;
+  constructor(startingPopulation = 1) {
+    this[sPopulation] = startingPopulation;
+    this[sBirthRate] = 0;
+    this[sDeathRate] = 0;
+    this[sImmigrationRate] = 0;
+    this[sEmmigrationRate] = 0;
   }
 
   /**
@@ -36,7 +44,7 @@ export default class Population {
    * @return  {Number}      Current population
    */
   get population() {
-    return Math.round(this[population]);
+    return Math.round(this[sPopulation]);
   }
 
   /**
@@ -45,7 +53,7 @@ export default class Population {
    * @return  {Number}      Current birth rate
    */
   get birthRate() {
-    return this[birthRate];
+    return this[sBirthRate];
   }
 
   /**
@@ -54,7 +62,7 @@ export default class Population {
    * @return  {Number}      Current death rate
    */
   get deathRate() {
-    return this[deathRate];
+    return this[sDeathRate];
   }
 
   /**
@@ -63,7 +71,7 @@ export default class Population {
    * @return  {Number}      Current immigration rate
    */
   get immigrationRate() {
-    return this[immigrationRate];
+    return this[sImmigrationRate];
   }
 
   /**
@@ -72,19 +80,20 @@ export default class Population {
    * @return  {Number}      Current emmigration rate
    */
   get emmigrationRate() {
-    return this[emmigrationRate];
+    return this[sEmmigrationRate];
   }
 
   /**
    * Updates the current population based on the current birth rate, death rate,
    * immigration rate, and emmigration rate.
    *
+   * @param   {Number}      tickLength  Length of the tick (in "years")
    * @return  {Population}  This population encapsulation
    */
-  tickPopulationGrowth() {
-    const increase = this.population * (this.birthRate + this.immigrationRate);
-    const decrease = this.population * (this.deathRate + this.emmigrationRate);
-    this[population] = this[population] + (increase - decrease);
+  tickPopulationGrowth(tickLength) {
+    const growthRate = (this.birthRate + this.immigrationRate) -
+      (this.deathRate + this.emmigrationRate);
+    this[sPopulation] *= Math.E ** (growthRate * tickLength);
     return this;
   }
 
@@ -96,12 +105,12 @@ export default class Population {
    * @param   {Number}      territory   Current territory
    * @return  {Population}  This population encapsulation
    */
-  updateBirthRate(food = 0, territory = 0) {
-    // const undercrowding = Math.log((1 + (this.population / (1 + territory))) / 50);
-    const hunger = Math.max(this.population - food, 0) / this.population;
-    const undercrowding = territory ** 0;
-    const baseRate = ((1 + hunger) / 1040) * undercrowding;
-    this[birthRate] = Math.min(baseRate, 2);
+  updateBirthRate(food = 1, territory = 1) {
+    const hunger = populationHunger(this.population, food);
+    const density = populationDensity(this.population, territory);
+    const dFactor = density > 0 ? Math.log(1 + ((Math.E - 1) * (density / 35))) : 1;
+    const baseRate = ((1 + hunger) / 20);
+    this[sBirthRate] = Math.min(baseRate, 2) * dFactor;
     return this;
   }
 
@@ -113,12 +122,14 @@ export default class Population {
    * @param   {Number}      territory   Current territory
    * @return  {Population}  This population encapsulation
    */
-  updateDeathRate(food = 0, territory = 0) {
+  updateDeathRate(food = 1, territory = 1) {
     // const hunger = 1 / Math.min((this.population - food) / this.population, 1);
     // const suicide = Math.min(1 / Math.log((this.population / (1 + territory)) / 777), 1);
-    const hunger = Math.max(this.population - food, 0) / this.population;
-    const suicide = territory ** 0;
-    this[deathRate] = ((1 / (70 * (1 - hunger))) / 52) * suicide;
+    const hunger = populationHunger(this.population, food);
+    const density = populationDensity(this.population, territory);
+    const sFactor = Math.max(density > 0 ? 1 - Math.log(1 + ((Math.E - 1) * (density / 777))) : 1,
+      0) * 0.00001326;
+    this[sDeathRate] = ((1 / (70 * (1 - hunger))) + sFactor);
     return this;
   }
 }
