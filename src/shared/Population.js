@@ -16,10 +16,26 @@ const sDeathRate = Symbol('deathRate');
 const sImmigrationRate = Symbol('immigrationRate');
 const sEmmigrationRate = Symbol('emmigrationRate');
 
+/**
+ * Calculates the percentage of a population that is going hungry
+ *
+ * @private
+ * @param   {Number}  population  Total population
+ * @param   {Number}  food        Total food
+ * @return  {Number}  Percentage of the population going hungry
+ */
 function populationHunger(population = 1, food = 0) {
   return population > 0 ? Math.max(population - food, 0) / population : 0;
 }
 
+/**
+ * Calculates the population density
+ *
+ * @private
+ * @param   {Number}  population  Total population
+ * @param   {Number}  territory   Total territory
+ * @return  {Number}  Population density
+ */
 function populationDensity(population = 0, territory = 1) {
   return territory > 0 ? population / territory : Number.POSITIVE_INFINITY;
 }
@@ -107,10 +123,13 @@ export default class Population {
    */
   updateBirthRate(food = 1, territory = 1) {
     const hunger = populationHunger(this.population, food);
+    const hFactor = (Math.log(1 + ((Math.E - 1) * hunger)) * 2) + 1;
     const density = populationDensity(this.population, territory);
-    const dFactor = density > 0 ? Math.log(1 + ((Math.E - 1) * (density / 35))) : 1;
-    const baseRate = ((1 + hunger) / 20);
-    this[sBirthRate] = Math.min(baseRate, 2) * dFactor;
+    const dFactor = 1 - Math.abs(Math.log((Math.E ** -3) +
+      ((Math.E - (Math.E ** -3)) * (density / 35))));
+    // const dFactor = density > 0 ? Math.log(1 + ((Math.E - 1) * (density / 35))) : 1;
+    const fertility = (2 * hFactor) + dFactor;
+    this[sBirthRate] = fertility / 45;
     return this;
   }
 
@@ -123,13 +142,11 @@ export default class Population {
    * @return  {Population}  This population encapsulation
    */
   updateDeathRate(food = 1, territory = 1) {
-    // const hunger = 1 / Math.min((this.population - food) / this.population, 1);
-    // const suicide = Math.min(1 / Math.log((this.population / (1 + territory)) / 777), 1);
     const hunger = populationHunger(this.population, food);
+    const hFactor = (Math.log(1 + ((Math.E - 1) * hunger)) * 5) + 1;
     const density = populationDensity(this.population, territory);
-    const sFactor = Math.max(density > 0 ? 1 - Math.log(1 + ((Math.E - 1) * (density / 777))) : 1,
-      0) * 0.00001326;
-    this[sDeathRate] = ((1 / (70 * (1 - hunger))) + sFactor);
+    const sFactor = 0.00001326 - (Math.log(1 + ((Math.E - 1) * (density / 777))) * 0.00001326);
+    this[sDeathRate] = ((1 / 70) * hFactor) + sFactor;
     return this;
   }
 }

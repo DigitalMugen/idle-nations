@@ -18,6 +18,8 @@ function updateCurrentFigures(gameTime, population, food, territory) {
   document.querySelector('#currentTerritory').textContent = `${territory}`;
   document.querySelector('#currentBirthRate').textContent = `${formatPercent(population.birthRate)}`;
   document.querySelector('#currentDeathRate').textContent = `${formatPercent(population.deathRate)}`;
+  document.querySelector('#currentGrowthRate').textContent =
+    `${formatPercent(population.birthRate - population.deathRate)}`;
 }
 
 function getValue(id) {
