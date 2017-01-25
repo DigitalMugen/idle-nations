@@ -73,6 +73,7 @@
 	  document.querySelector('#currentTerritory').textContent = '' + territory;
 	  document.querySelector('#currentBirthRate').textContent = '' + formatPercent(population.birthRate);
 	  document.querySelector('#currentDeathRate').textContent = '' + formatPercent(population.deathRate);
+	  document.querySelector('#currentGrowthRate').textContent = '' + formatPercent(population.birthRate - population.deathRate);
 	}
 	
 	function getValue(id) {
@@ -152,6 +153,14 @@
 	var sImmigrationRate = Symbol('immigrationRate');
 	var sEmmigrationRate = Symbol('emmigrationRate');
 	
+	/**
+	 * Calculates the percentage of a population that is going hungry
+	 *
+	 * @private
+	 * @param   {Number}  population  Total population
+	 * @param   {Number}  food        Total food
+	 * @return  {Number}  Percentage of the population going hungry
+	 */
 	function populationHunger() {
 	  var population = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 	  var food = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
@@ -159,6 +168,14 @@
 	  return population > 0 ? Math.max(population - food, 0) / population : 0;
 	}
 	
+	/**
+	 * Calculates the population density
+	 *
+	 * @private
+	 * @param   {Number}  population  Total population
+	 * @param   {Number}  territory   Total territory
+	 * @return  {Number}  Population density
+	 */
 	function populationDensity() {
 	  var population = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 	  var territory = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
@@ -225,10 +242,12 @@
 	      var territory = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
 	
 	      var hunger = populationHunger(this.population, food);
+	      var hFactor = Math.log(1 + (Math.E - 1) * hunger) * 2 + 1;
 	      var density = populationDensity(this.population, territory);
-	      var dFactor = density > 0 ? Math.log(1 + (Math.E - 1) * (density / 35)) : 1;
-	      var baseRate = (1 + hunger) / 20;
-	      this[sBirthRate] = Math.min(baseRate, 2) * dFactor;
+	      var dFactor = 1 - Math.abs(Math.log(Math.pow(Math.E, -3) + (Math.E - Math.pow(Math.E, -3)) * (density / 35)));
+	      // const dFactor = density > 0 ? Math.log(1 + ((Math.E - 1) * (density / 35))) : 1;
+	      var fertility = 2 * hFactor + dFactor;
+	      this[sBirthRate] = fertility / 45;
 	      return this;
 	    }
 	
@@ -247,12 +266,11 @@
 	      var food = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 	      var territory = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
 	
-	      // const hunger = 1 / Math.min((this.population - food) / this.population, 1);
-	      // const suicide = Math.min(1 / Math.log((this.population / (1 + territory)) / 777), 1);
 	      var hunger = populationHunger(this.population, food);
+	      var hFactor = Math.log(1 + (Math.E - 1) * hunger) * 5 + 1;
 	      var density = populationDensity(this.population, territory);
-	      var sFactor = Math.max(density > 0 ? 1 - Math.log(1 + (Math.E - 1) * (density / 777)) : 1, 0) * 0.00001326;
-	      this[sDeathRate] = 1 / (70 * (1 - hunger)) + sFactor;
+	      var sFactor = 0.00001326 - Math.log(1 + (Math.E - 1) * (density / 777)) * 0.00001326;
+	      this[sDeathRate] = 1 / 70 * hFactor + sFactor;
 	      return this;
 	    }
 	  }, {
