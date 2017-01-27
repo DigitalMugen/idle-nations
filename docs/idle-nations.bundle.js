@@ -46,9 +46,9 @@
 
 	'use strict';
 	
-	var _Population = __webpack_require__(1);
+	var _Nation = __webpack_require__(1);
 	
-	var _Population2 = _interopRequireDefault(_Population);
+	var _Nation2 = _interopRequireDefault(_Nation);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -94,35 +94,163 @@
 	  return 'Year ' + years + ', Week ' + weeks;
 	}
 	
+	function startNation() {
+	  var nation = new _Nation2.default({
+	    population: getValue('#startingPopulation'),
+	    food: getValue('#food'),
+	    territory: getValue('#territory')
+	  });
+	  updateCurrentFigures(formatGameTime(0), nation.population.population, nation.food.food, nation.territory.territory);
+	  return nation;
+	}
+	
 	window.addEventListener('load', function () {
 	  var multiplier = 1;
+	  var nation = startNation();
 	
-	  var population = new _Population2.default(getValue('#startingPopulation'));
-	  var food = getValue('#food');
-	  var territory = getValue('#territory');
 	  var startTime = Date.now();
 	  var lastTick = startTime;
-	  updateCurrentFigures(formatGameTime(0), population, food, territory);
 	  setInterval(function () {
-	    food = getValue('#food');
-	    territory = getValue('#territory');
 	    var thisTick = Date.now();
 	    var tickTime = convertToGameTime(thisTick - startTime, multiplier);
 	    var tickLength = convertToGameTime(thisTick - lastTick, multiplier);
-	    population.updateBirthRate(food, territory).updateDeathRate(food, territory).tickPopulationGrowth(tickLength);
-	    updateCurrentFigures(formatGameTime(tickTime), population, food, territory);
+	    nation.tickUpdate(tickLength);
+	    updateCurrentFigures(formatGameTime(tickTime), nation.population.population, nation.food.food, nation.territory.territory);
 	    lastTick = thisTick;
 	  }, 1000 / 60);
 	  document.querySelector('#restartButton').addEventListener('click', function () {
-	    population = new _Population2.default(getValue('#startingPopulation'));
+	    nation = startNation();
 	    startTime = Date.now();
 	    lastTick = startTime;
-	    updateCurrentFigures(formatGameTime(0), population, food, territory);
 	  });
 	});
 
 /***/ },
 /* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Nation module
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @module
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @copyright Bill Robitske, Jr. 2017
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @author    Bill Robitske, Jr. <bill.robitske.jr@gmail.com>
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * @license   MIT
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+	
+	
+	var _Population = __webpack_require__(2);
+	
+	var _Population2 = _interopRequireDefault(_Population);
+	
+	var _Food = __webpack_require__(3);
+	
+	var _Food2 = _interopRequireDefault(_Food);
+	
+	var _Territory = __webpack_require__(4);
+	
+	var _Territory2 = _interopRequireDefault(_Territory);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/**
+	 * Symbols for "private" properties
+	 */
+	var sPopulation = Symbol('population');
+	var sFood = Symbol('food');
+	var sTerritory = Symbol('territory');
+	
+	/**
+	 * Nation encapsulation
+	 * @class
+	 */
+	
+	var Nation = function () {
+	
+	  /**
+	   * Creates a new nation model
+	   * @constructor
+	   * @param   {Object}  config
+	   * @param   {Number}  config.population Starting population
+	   * @param   {Number}  config.food       Starting food
+	   * @return  {Nation}  Newly created nation
+	   */
+	  function Nation() {
+	    var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	
+	    _classCallCheck(this, Nation);
+	
+	    this[sPopulation] = new _Population2.default(config.population || 10);
+	    this[sFood] = new _Food2.default(config.food || 10);
+	    this[sTerritory] = new _Territory2.default(config.territory || 1);
+	  }
+	
+	  /**
+	   * This nation's population model
+	   * @member  {Population}
+	   */
+	
+	
+	  _createClass(Nation, [{
+	    key: 'tickUpdate',
+	
+	
+	    /**
+	     * Updates this nation's population, food, etc. models
+	     * @param   {Number}  tickLength  In-game years to progress in this tick
+	     * @return  {Nation}  This nation
+	     */
+	    value: function tickUpdate() {
+	      var tickLength = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+	
+	      this.population.updateBirthRate(this.food.food, this.territory.territory).updateDeathRate(this.food.food, this.territory.territory);
+	      this.population.tickUpdate(tickLength);
+	      return this;
+	    }
+	  }, {
+	    key: 'population',
+	    get: function get() {
+	      return this[sPopulation];
+	    }
+	
+	    /**
+	     * This nation's food model
+	     * @member  {Food}
+	     */
+	
+	  }, {
+	    key: 'food',
+	    get: function get() {
+	      return this[sFood];
+	    }
+	
+	    /**
+	     * This nation's territory model
+	     * @member  {Territory}
+	     */
+	
+	  }, {
+	    key: 'territory',
+	    get: function get() {
+	      return this[sTerritory];
+	    }
+	  }]);
+	
+	  return Nation;
+	}();
+	
+	exports.default = Nation;
+
+/***/ },
+/* 2 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -332,6 +460,140 @@
 	}();
 	
 	exports.default = Population;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/**
+	 * Food module
+	 *
+	 * @module
+	 * @copyright Bill Robitske, Jr. 2017
+	 * @author    Bill Robitske, Jr. <bill.robitske.jr@gmail.com>
+	 * @license   MIT
+	 */
+	
+	/**
+	 * Symbols for "private" properties
+	 */
+	var sFood = Symbol('food');
+	
+	/**
+	 * Food encapsulation
+	 * @class
+	 */
+	
+	var Food = function () {
+	
+	  /**
+	   * Creates a new food model
+	   * @constructor
+	   * @param   {Number}  startingFood  Starting food
+	   * @return  {Food}    Newly created food model
+	   */
+	  function Food() {
+	    var startingFood = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+	
+	    _classCallCheck(this, Food);
+	
+	    this[sFood] = startingFood;
+	  }
+	
+	  /**
+	   * Total food
+	   * @member  {Number}
+	   */
+	
+	
+	  _createClass(Food, [{
+	    key: 'food',
+	    get: function get() {
+	      return Math.round(this[sFood]);
+	    }
+	  }]);
+	
+	  return Food;
+	}();
+	
+	exports.default = Food;
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/**
+	 * Territory module
+	 *
+	 * @module
+	 * @copyright Bill Robitske, Jr. 2017
+	 * @author    Bill Robitske, Jr. <bill.robitske.jr@gmail.com>
+	 * @license   MIT
+	 */
+	
+	/**
+	 * Symbols for "private" properties
+	 */
+	var sTerritory = Symbol('territory');
+	
+	/**
+	 * Territory encapsulation
+	 * @class
+	 */
+	
+	var Territory = function () {
+	
+	  /**
+	   * Creates a new territory model
+	   * @constructor
+	   * @param   {Number}    startingTerritory Starting territory
+	   * @return  {Territory} Newly created territory
+	   */
+	  function Territory() {
+	    var startingTerritory = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+	
+	    _classCallCheck(this, Territory);
+	
+	    this[sTerritory] = startingTerritory;
+	  }
+	
+	  /**
+	   * Current ammount of territory
+	   * @member  {Number}
+	   */
+	
+	
+	  _createClass(Territory, [{
+	    key: 'territory',
+	    get: function get() {
+	      return Math.round(this[sTerritory]);
+	    }
+	  }]);
+	
+	  return Territory;
+	}();
+	
+	exports.default = Territory;
 
 /***/ }
 /******/ ]);

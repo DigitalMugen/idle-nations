@@ -8,12 +8,14 @@
  */
 import Population from './Population';
 import Food from './Food';
+import Territory from './Territory';
 
 /**
  * Symbols for "private" properties
  */
 const sPopulation = Symbol('population');
 const sFood = Symbol('food');
+const sTerritory = Symbol('territory');
 
 /**
  * Nation encapsulation
@@ -32,6 +34,7 @@ export default class Nation {
   constructor(config = {}) {
     this[sPopulation] = new Population(config.population || 10);
     this[sFood] = new Food(config.food || 10);
+    this[sTerritory] = new Territory(config.territory || 1);
   }
 
   /**
@@ -51,14 +54,22 @@ export default class Nation {
   }
 
   /**
+   * This nation's territory model
+   * @member  {Territory}
+   */
+  get territory() {
+    return this[sTerritory];
+  }
+
+  /**
    * Updates this nation's population, food, etc. models
    * @param   {Number}  tickLength  In-game years to progress in this tick
    * @return  {Nation}  This nation
    */
   tickUpdate(tickLength = 1) {
     this.population
-      .updateBirthRate(this.food.food)
-      .updateDeathRate(this.food.food);
+      .updateBirthRate(this.food.food, this.territory.territory)
+      .updateDeathRate(this.food.food, this.territory.territory);
     this.population.tickUpdate(tickLength);
     return this;
   }
