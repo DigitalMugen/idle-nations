@@ -5,64 +5,68 @@
  * @author    Bill Robitske, Jr. <bill.robitske.jr@gmail.com>
  * @license   MIT
  */
-import Population from '../shared/Population';
+import Nation from '../shared/Nation';
+import ResourceView from './ResourceView';
 
-function formatPercent(number = 0, decimals = 2) {
-  return `${Math.round(number * 100 * (10 ** decimals)) / (10 ** decimals)}%`;
+function formatGameTime(gameTime) {
+  const year = Math.floor(gameTime);
+  const day = Math.floor((gameTime - year) * 365);
+  return `Day ${day} of Year ${year}`;
 }
 
-function updateCurrentFigures(gameTime, population, food, territory) {
-  document.querySelector('#gameTime').textContent = `${gameTime}`;
-  document.querySelector('#currentPopulation').textContent = `${population.population}`;
-  document.querySelector('#currentFood').textContent = `${food}`;
-  document.querySelector('#currentTerritory').textContent = `${territory}`;
-  document.querySelector('#currentBirthRate').textContent = `${formatPercent(population.birthRate)}`;
-  document.querySelector('#currentDeathRate').textContent = `${formatPercent(population.deathRate)}`;
-  document.querySelector('#currentGrowthRate').textContent =
-    `${formatPercent(population.birthRate - population.deathRate)}`;
-}
-
-function getValue(id) {
-  const value = Number.parseInt(document.querySelector(id).value, 10);
-  return Number.isNaN(value) ? 0 : value;
+function updateCurrentFigures(gameTime, nation) { // eslint-disable-line
+  document.querySelector('#currentDate').textContent = gameTime;
+  const population = document.querySelector('[data-resource="population"]');
+  ResourceView.updateResourceView(population, nation.population, 'population');
+  const food = document.querySelector('[data-resource="food"]');
+  ResourceView.updateResourceView(food, nation.food, 'food');
+  const territory = document.querySelector('[data-resource="territory"]');
+  ResourceView.updateResourceView(territory, nation.territory, 'territory');
 }
 
 function convertToGameTime(realTime = 0, multiplier = 1) {
   return realTime / (1000 / multiplier);
 }
 
-function formatGameTime(gameTime) {
-  const years = Math.floor(gameTime);
-  const weeks = Math.floor((gameTime - years) * 52);
-  return `Year ${years}, Week ${weeks}`;
+function startNation() {
+  const nation = new Nation({
+    population: 10,
+    food: 10,
+    territory: 1,
+  });
+  updateCurrentFigures(formatGameTime(0), nation);
+  return nation;
 }
 
 window.addEventListener('load', () => {
   const multiplier = 1;
-
-  let population = new Population(getValue('#startingPopulation'));
-  let food = getValue('#food');
-  let territory = getValue('#territory');
-  let startTime = Date.now();
+  let nation = startNation();
+  let startTime = new Date();
   let lastTick = startTime;
-  updateCurrentFigures(formatGameTime(0), population, food, territory);
+  const realStartDate = document.querySelector('#realStartDate');
+  realStartDate.textContent = startTime.toLocaleDateString('en', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
   setInterval(() => {
-    food = getValue('#food');
-    territory = getValue('#territory');
     const thisTick = Date.now();
-    const tickTime = convertToGameTime(thisTick - startTime, multiplier);
+    const tickTime = convertToGameTime(thisTick - startTime.getTime(), multiplier);
     const tickLength = convertToGameTime(thisTick - lastTick, multiplier);
-    population
-      .updateBirthRate(food, territory)
-      .updateDeathRate(food, territory)
-      .tickPopulationGrowth(tickLength);
-    updateCurrentFigures(formatGameTime(tickTime), population, food, territory);
+    nation.tickUpdate(tickLength);
+    updateCurrentFigures(formatGameTime(tickTime), nation);
     lastTick = thisTick;
   }, 1000 / 60);
-  document.querySelector('#restartButton').addEventListener('click', () => {
-    population = new Population(getValue('#startingPopulation'));
-    startTime = Date.now();
+  const restartButton = document.querySelector('.js-restart-button');
+  if (!restartButton) return;
+  restartButton.addEventListener('click', () => {
+    nation = startNation();
+    startTime = new Date();
     lastTick = startTime;
-    updateCurrentFigures(formatGameTime(0), population, food, territory);
+    realStartDate.textContent = startTime.toLocaleDateString('en', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
   });
 });

@@ -82,6 +82,14 @@ export default class Population {
   }
 
   /**
+   * Current natural population growth rate
+   * @member  {Number}
+   */
+  get naturalGrowthRate() {
+    return this.birthRate - this.deathRate;
+  }
+
+  /**
    * Retrieve current immigration rate
    *
    * @return  {Number}      Current immigration rate
@@ -97,6 +105,22 @@ export default class Population {
    */
   get emmigrationRate() {
     return this[sEmmigrationRate];
+  }
+
+  /**
+   * Current net immigration rate
+   * @member  {Number}
+   */
+  get netImmigrationRate() {
+    return this.immigrationRate - this.emmigrationRate;
+  }
+
+  /**
+   * Current net population growth rate
+   * @member  {Number}
+   */
+  get netGrowthRate() {
+    return this.naturalGrowthRate + this.netImmigrationRate;
   }
 
   /**
