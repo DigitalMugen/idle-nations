@@ -6,7 +6,7 @@
  * @license   MIT
  */
 import Nation from '../shared/Nation';
-// import ResourceView from './ResourceView';
+import ResourceView from './ResourceView';
 
 function formatGameTime(gameTime) {
   const year = Math.floor(gameTime);
@@ -16,7 +16,12 @@ function formatGameTime(gameTime) {
 
 function updateCurrentFigures(gameTime, nation) { // eslint-disable-line
   document.querySelector('#currentDate').textContent = gameTime;
-  document.querySelector('#currentPopulation').textContent = nation.population.population;
+  const population = document.querySelector('[data-resource="population"]');
+  ResourceView.updateResourceView(population, nation.population, 'population');
+  const food = document.querySelector('[data-resource="food"]');
+  ResourceView.updateResourceView(food, nation.food, 'food');
+  const territory = document.querySelector('[data-resource="territory"]');
+  ResourceView.updateResourceView(territory, nation.territory, 'territory');
 }
 
 function convertToGameTime(realTime = 0, multiplier = 1) {
@@ -35,16 +40,33 @@ function startNation() {
 
 window.addEventListener('load', () => {
   const multiplier = 1;
-  let nation = startNation(); // eslint-disable-line
-
-  let startTime = Date.now(); // eslint-disable-line
+  let nation = startNation();
+  let startTime = new Date();
   let lastTick = startTime;
+  const realStartDate = document.querySelector('#realStartDate');
+  realStartDate.textContent = startTime.toLocaleDateString('en', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
   setInterval(() => {
     const thisTick = Date.now();
-    const tickTime = convertToGameTime(thisTick - startTime, multiplier);
+    const tickTime = convertToGameTime(thisTick - startTime.getTime(), multiplier);
     const tickLength = convertToGameTime(thisTick - lastTick, multiplier);
     nation.tickUpdate(tickLength);
     updateCurrentFigures(formatGameTime(tickTime), nation);
     lastTick = thisTick;
   }, 1000 / 60);
+  const restartButton = document.querySelector('.js-restart-button');
+  if (!restartButton) return;
+  restartButton.addEventListener('click', () => {
+    nation = startNation();
+    startTime = new Date();
+    lastTick = startTime;
+    realStartDate.textContent = startTime.toLocaleDateString('en', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  });
 });

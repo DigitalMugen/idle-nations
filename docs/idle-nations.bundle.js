@@ -50,27 +50,34 @@
 	
 	var _Nation2 = _interopRequireDefault(_Nation);
 	
+	var _ResourceView = __webpack_require__(5);
+	
+	var _ResourceView2 = _interopRequireDefault(_ResourceView);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	// import ResourceView from './ResourceView';
-	
+	/**
+	 * Idle Nations behavior (testing)
+	 *
+	 * @copyright Bill Robitske, Jr. 2017
+	 * @author    Bill Robitske, Jr. <bill.robitske.jr@gmail.com>
+	 * @license   MIT
+	 */
 	function formatGameTime(gameTime) {
 	  var year = Math.floor(gameTime);
 	  var day = Math.floor((gameTime - year) * 365);
 	  return 'Day ' + day + ' of Year ' + year;
-	} /**
-	   * Idle Nations behavior (testing)
-	   *
-	   * @copyright Bill Robitske, Jr. 2017
-	   * @author    Bill Robitske, Jr. <bill.robitske.jr@gmail.com>
-	   * @license   MIT
-	   */
-	
+	}
 	
 	function updateCurrentFigures(gameTime, nation) {
 	  // eslint-disable-line
 	  document.querySelector('#currentDate').textContent = gameTime;
-	  document.querySelector('#currentPopulation').textContent = nation.population.population;
+	  var population = document.querySelector('[data-resource="population"]');
+	  _ResourceView2.default.updateResourceView(population, nation.population, 'population');
+	  var food = document.querySelector('[data-resource="food"]');
+	  _ResourceView2.default.updateResourceView(food, nation.food, 'food');
+	  var territory = document.querySelector('[data-resource="territory"]');
+	  _ResourceView2.default.updateResourceView(territory, nation.territory, 'territory');
 	}
 	
 	function convertToGameTime() {
@@ -92,18 +99,35 @@
 	
 	window.addEventListener('load', function () {
 	  var multiplier = 1;
-	  var nation = startNation(); // eslint-disable-line
-	
-	  var startTime = Date.now(); // eslint-disable-line
+	  var nation = startNation();
+	  var startTime = new Date();
 	  var lastTick = startTime;
+	  var realStartDate = document.querySelector('#realStartDate');
+	  realStartDate.textContent = startTime.toLocaleDateString('en', {
+	    month: 'short',
+	    day: 'numeric',
+	    year: 'numeric'
+	  });
 	  setInterval(function () {
 	    var thisTick = Date.now();
-	    var tickTime = convertToGameTime(thisTick - startTime, multiplier);
+	    var tickTime = convertToGameTime(thisTick - startTime.getTime(), multiplier);
 	    var tickLength = convertToGameTime(thisTick - lastTick, multiplier);
 	    nation.tickUpdate(tickLength);
 	    updateCurrentFigures(formatGameTime(tickTime), nation);
 	    lastTick = thisTick;
 	  }, 1000 / 60);
+	  var restartButton = document.querySelector('.js-restart-button');
+	  if (!restartButton) return;
+	  restartButton.addEventListener('click', function () {
+	    nation = startNation();
+	    startTime = new Date();
+	    lastTick = startTime;
+	    realStartDate.textContent = startTime.toLocaleDateString('en', {
+	      month: 'short',
+	      day: 'numeric',
+	      year: 'numeric'
+	    });
+	  });
 	});
 
 /***/ },
@@ -413,6 +437,17 @@
 	    }
 	
 	    /**
+	     * Current natural population growth rate
+	     * @member  {Number}
+	     */
+	
+	  }, {
+	    key: 'naturalGrowthRate',
+	    get: function get() {
+	      return this.birthRate - this.deathRate;
+	    }
+	
+	    /**
 	     * Retrieve current immigration rate
 	     *
 	     * @return  {Number}      Current immigration rate
@@ -434,6 +469,28 @@
 	    key: 'emmigrationRate',
 	    get: function get() {
 	      return this[sEmmigrationRate];
+	    }
+	
+	    /**
+	     * Current net immigration rate
+	     * @member  {Number}
+	     */
+	
+	  }, {
+	    key: 'netImmigrationRate',
+	    get: function get() {
+	      return this.immigrationRate - this.emmigrationRate;
+	    }
+	
+	    /**
+	     * Current net population growth rate
+	     * @member  {Number}
+	     */
+	
+	  }, {
+	    key: 'netGrowthRate',
+	    get: function get() {
+	      return this.naturalGrowthRate + this.netImmigrationRate;
 	    }
 	  }]);
 	
@@ -575,6 +632,80 @@
 	}();
 	
 	exports.default = Territory;
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/**
+	 * Resource view module
+	 *
+	 * @module
+	 * @copyright Bill Robitske, Jr. 2017
+	 * @author    Bill Robitske, Jr. <bill.robitske.jr@gmail.com>
+	 * @license   MIT
+	 */
+	var ResourceView = function () {
+	  function ResourceView() {
+	    _classCallCheck(this, ResourceView);
+	  }
+	
+	  _createClass(ResourceView, null, [{
+	    key: 'formatAsPercent',
+	
+	
+	    /**
+	     * Formats a number as a percent
+	     * @static
+	     * @param   {Number}  value       Value to be formatted
+	     * @param   {Number}  precision   Decimal places to round the percent to
+	     * @return  {String}  Formatted percent
+	     */
+	    value: function formatAsPercent() {
+	      var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+	      var precision = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+	
+	      var percent = Math.round(value * Math.pow(10, 2 + precision)) / Math.pow(10, precision);
+	      return percent + '%';
+	    }
+	  }, {
+	    key: 'updateResourceView',
+	    value: function updateResourceView() {
+	      var container = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+	      var model = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+	      var baseKey = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+	
+	      if (!container || !model || baseKey === '' || model[baseKey] === undefined) return;
+	      var resourceField = container.querySelector('[data-form="resource"]');
+	      if (!resourceField) return;
+	      resourceField.textContent = model[baseKey];
+	      var rateFields = Array.from(container.querySelectorAll('[data-form="rate"]'));
+	      for (var i = 0, iLen = rateFields.length; i < iLen; i += 1) {
+	        var key = rateFields[i].getAttribute('data-value');
+	        rateFields[i].textContent = model[key] !== undefined ? ResourceView.formatAsPercent(model[key], 3) : '-';
+	      }
+	      var absoluteFields = Array.from(container.querySelectorAll('[data-form="absolute"]'));
+	      for (var _i = 0, _iLen = absoluteFields.length; _i < _iLen; _i += 1) {
+	        var _key = absoluteFields[_i].getAttribute('data-value');
+	        absoluteFields[_i].textContent = model[_key] !== undefined ? Math.round(model[baseKey] * model[_key]) : '-';
+	      }
+	    }
+	  }]);
+	
+	  return ResourceView;
+	}();
+	
+	exports.default = ResourceView;
 
 /***/ }
 /******/ ]);

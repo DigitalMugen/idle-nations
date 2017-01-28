@@ -1,14 +1,49 @@
+html, body {
+  font-family: sans-serif;
+  font-size: 10pt;
+}
+
+.c-heading {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+.c-heading__current-date {
+  margin: 0;
+  font-size: 1.618rem;
+}
+.c-heading__real-start-date {
+  margin: 0 0 0 auto;
+  font-size: 1rem;
+}
+
 .c-resources {
   position: relative;
   display: flex;
   flex-direction: row;
+  margin: 0 -0.25rem;
 }
 .c-resources__resource {
   position: relative;
   box-sizing: border-box;
   flex-basis: 25rem;
+  margin: 0.25rem;
   border: 1px solid black;
   padding: 0.25rem;
+}
+.c-resources__resource-heading {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  box-sizing: border-box;
+  margin: 0.5rem -0.25rem;
+  border-bottom: 1px solid black;
+  padding: 0 0.5rem 0.5rem 0.5rem;
+}
+.c-resources__resource-heading [data-form="resource"] {
+  margin-left: auto;
 }
 
 .c-data-table {
@@ -25,7 +60,18 @@
 }
 .c-data-table th,
 .c-data-table td {
+  padding: 0.125rem 0.25rem;
+}
+.c-data-table__subtotal-row th,
+.c-data-table__subtotal-row td {
   border-top: 1px solid black;
+}
+.c-data-table th {
+  text-align: left;
+}
+.c-data-table td,
+.c-data-table thead th:not(:first-child) {
+  text-align: right;
 }
 .c-data-table thead th,
 .c-data-table thead td {

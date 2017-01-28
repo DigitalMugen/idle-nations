@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Idle Nations Testing</title>
+    <title>Idle Nations (Alpha)</title>
     <link rel="stylesheet" href="idle-nations.css">
     <script src="idle-nations.bundle.js"></script>
   </head>
   <body>
-    <h1>Current Date: <span id="currentDate">Day X of Year Y</span>
-      <small>(nation started <span id="realStartDate">Mmm d, yyyy</span>)</small>
-    </h1>
+    <div class="c-heading">
+      <h1 class="c-heading__current-date">Current Date: <span id="currentDate">Day X of Year Y</span></h1>
+      <p class="c-heading__real-start-date">
+        (nation started <span id="realStartDate">Mmm d, yyyy</span>)
+        <button class="js-restart-button">Restart Nation</button>
+      </p>
+    </div>
     <div class="c-resources">
-      <div class="c-resources__resource">
-        <h2>Population: <span id="currentPopulation">X</span></h2>
+      <div class="c-resources__resource" data-resource="population">
+        <h2 class="c-resources__resource-heading">
+          Population
+          <span data-form="resource">X</span>
+        </h2>
         <table class="c-data-table">
           <colgroup>
             <col class="c-data-table__label-col">
@@ -28,45 +35,57 @@
           <tbody>
             <tr>
               <th>Birth Rate</th>
-              <td></td>
-              <td></td>
+              <td data-value="birthRate" data-form="rate"></td>
+              <td data-value="birthRate" data-form="absolute"></td>
             </tr>
             <tr>
               <th>Death Rate</th>
-              <td></td>
-              <td></td>
+              <td data-value="deathRate" data-form="rate"></td>
+              <td data-value="deathRate" data-form="absolute"></td>
             </tr>
-            <tr>
+            <tr class="c-data-table__subtotal-row">
               <th>Natural Growth Rate</th>
-              <td></td>
-              <td></td>
+              <td data-value="naturalGrowthRate" data-form="rate"></td>
+              <td data-value="naturalGrowthRate" data-form="absolute"></td>
             </tr>
           </tbody>
           <tbody>
             <tr>
               <th>Immigration Rate</th>
-              <td></td>
-              <td></td>
+              <td data-value="immigrationRate" data-form="rate"></td>
+              <td data-value="immigrationRate" data-form="absolute"></td>
             </tr>
             <tr>
               <th>Emmigration Rate</th>
-              <td></td>
-              <td></td>
+              <td data-value="emmigrationRate" data-form="rate"></td>
+              <td data-value="emmigrationRate" data-form="absolute"></td>
             </tr>
-            <tr>
+            <tr class="c-data-table__subtotal-row">
               <th>Net Immigration Rate</th>
-              <td></td>
-              <td></td>
+              <td data-value="netImmigrationRate" data-form="rate"></td>
+              <td data-value="netImmigrationRate" data-form="absolute"></td>
             </tr>
           </tbody>
           <tfoot>
             <tr>
               <th>Net Population Growth Rate</th>
-              <td></td>
-              <td></td>
+              <td data-value="netGrowthRate" data-form="rate"></td>
+              <td data-value="netGrowthRate" data-form="absolute"></td>
             </tr>
           </tfoot>
         </table>
+      </div>
+      <div class="c-resources__resource" data-resource="food">
+        <h2 class="c-resources__resource-heading">
+          Food
+          <span data-form="resource"></span>
+        </h2>
+      </div>
+      <div class="c-resources__resource" data-resource="territory">
+        <h2 class="c-resources__resource-heading">
+          Territory
+          <span data-form="resource"></span>
+        </h2>
       </div>
     </div>
   </body>
