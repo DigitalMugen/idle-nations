@@ -6,66 +6,45 @@
  * @license   MIT
  */
 import Nation from '../shared/Nation';
+// import ResourceView from './ResourceView';
 
-function formatPercent(number = 0, decimals = 2) {
-  return `${Math.round(number * 100 * (10 ** decimals)) / (10 ** decimals)}%`;
+function formatGameTime(gameTime) {
+  const year = Math.floor(gameTime);
+  const day = Math.floor((gameTime - year) * 365);
+  return `Day ${day} of Year ${year}`;
 }
 
-function updateCurrentFigures(gameTime, population, food, territory) {
-  document.querySelector('#gameTime').textContent = `${gameTime}`;
-  document.querySelector('#currentPopulation').textContent = `${population.population}`;
-  document.querySelector('#currentFood').textContent = `${food}`;
-  document.querySelector('#currentTerritory').textContent = `${territory}`;
-  document.querySelector('#currentBirthRate').textContent = `${formatPercent(population.birthRate)}`;
-  document.querySelector('#currentDeathRate').textContent = `${formatPercent(population.deathRate)}`;
-  document.querySelector('#currentGrowthRate').textContent =
-    `${formatPercent(population.birthRate - population.deathRate)}`;
-}
-
-function getValue(id) {
-  const value = Number.parseInt(document.querySelector(id).value, 10);
-  return Number.isNaN(value) ? 0 : value;
+function updateCurrentFigures(gameTime, nation) { // eslint-disable-line
+  document.querySelector('#currentDate').textContent = gameTime;
+  document.querySelector('#currentPopulation').textContent = nation.population.population;
 }
 
 function convertToGameTime(realTime = 0, multiplier = 1) {
   return realTime / (1000 / multiplier);
 }
 
-function formatGameTime(gameTime) {
-  const years = Math.floor(gameTime);
-  const weeks = Math.floor((gameTime - years) * 52);
-  return `Year ${years}, Week ${weeks}`;
-}
-
 function startNation() {
   const nation = new Nation({
-    population: getValue('#startingPopulation'),
-    food: getValue('#food'),
-    territory: getValue('#territory'),
+    population: 10,
+    food: 10,
+    territory: 1,
   });
-  updateCurrentFigures(formatGameTime(0), nation.population.population,
-    nation.food.food, nation.territory.territory);
+  updateCurrentFigures(formatGameTime(0), nation);
   return nation;
 }
 
 window.addEventListener('load', () => {
   const multiplier = 1;
-  let nation = startNation();
+  let nation = startNation(); // eslint-disable-line
 
-  let startTime = Date.now();
+  let startTime = Date.now(); // eslint-disable-line
   let lastTick = startTime;
   setInterval(() => {
     const thisTick = Date.now();
     const tickTime = convertToGameTime(thisTick - startTime, multiplier);
     const tickLength = convertToGameTime(thisTick - lastTick, multiplier);
     nation.tickUpdate(tickLength);
-    updateCurrentFigures(formatGameTime(tickTime), nation.population.population,
-      nation.food.food, nation.territory.territory);
+    updateCurrentFigures(formatGameTime(tickTime), nation);
     lastTick = thisTick;
   }, 1000 / 60);
-  document.querySelector('#restartButton').addEventListener('click', () => {
-    nation = startNation();
-    startTime = Date.now();
-    lastTick = startTime;
-  });
 });

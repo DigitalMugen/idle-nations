@@ -1,0 +1,42 @@
+.c-resources {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+}
+.c-resources__resource {
+  position: relative;
+  box-sizing: border-box;
+  flex-basis: 25rem;
+  border: 1px solid black;
+  padding: 0.25rem;
+}
+
+.c-data-table {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  border-collapse: collapse;
+}
+.c-data-table__label-col {
+  width: calc(15rem);
+}
+.c-data-table__value-col {
+  width: calc(5rem);
+}
+.c-data-table th,
+.c-data-table td {
+  border-top: 1px solid black;
+}
+.c-data-table thead th,
+.c-data-table thead td {
+  border-top: none;
+  border-bottom: 3px solid black;
+}
+.c-data-table tbody + tbody tr:first-child th,
+.c-data-table tbody + tbody tr:first-child td {
+  border-top: 2px solid black;
+}
+.c-data-table tfoot th,
+.c-data-table tfoot td {
+  border-top: 3px double black;
+}

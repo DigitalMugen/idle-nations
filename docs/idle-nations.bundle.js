@@ -52,11 +52,12 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	function formatPercent() {
-	  var number = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-	  var decimals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
+	// import ResourceView from './ResourceView';
 	
-	  return Math.round(number * 100 * Math.pow(10, decimals)) / Math.pow(10, decimals) + '%';
+	function formatGameTime(gameTime) {
+	  var year = Math.floor(gameTime);
+	  var day = Math.floor((gameTime - year) * 365);
+	  return 'Day ' + day + ' of Year ' + year;
 	} /**
 	   * Idle Nations behavior (testing)
 	   *
@@ -66,19 +67,10 @@
 	   */
 	
 	
-	function updateCurrentFigures(gameTime, population, food, territory) {
-	  document.querySelector('#gameTime').textContent = '' + gameTime;
-	  document.querySelector('#currentPopulation').textContent = '' + population.population;
-	  document.querySelector('#currentFood').textContent = '' + food;
-	  document.querySelector('#currentTerritory').textContent = '' + territory;
-	  document.querySelector('#currentBirthRate').textContent = '' + formatPercent(population.birthRate);
-	  document.querySelector('#currentDeathRate').textContent = '' + formatPercent(population.deathRate);
-	  document.querySelector('#currentGrowthRate').textContent = '' + formatPercent(population.birthRate - population.deathRate);
-	}
-	
-	function getValue(id) {
-	  var value = Number.parseInt(document.querySelector(id).value, 10);
-	  return Number.isNaN(value) ? 0 : value;
+	function updateCurrentFigures(gameTime, nation) {
+	  // eslint-disable-line
+	  document.querySelector('#currentDate').textContent = gameTime;
+	  document.querySelector('#currentPopulation').textContent = nation.population.population;
 	}
 	
 	function convertToGameTime() {
@@ -88,41 +80,30 @@
 	  return realTime / (1000 / multiplier);
 	}
 	
-	function formatGameTime(gameTime) {
-	  var years = Math.floor(gameTime);
-	  var weeks = Math.floor((gameTime - years) * 52);
-	  return 'Year ' + years + ', Week ' + weeks;
-	}
-	
 	function startNation() {
 	  var nation = new _Nation2.default({
-	    population: getValue('#startingPopulation'),
-	    food: getValue('#food'),
-	    territory: getValue('#territory')
+	    population: 10,
+	    food: 10,
+	    territory: 1
 	  });
-	  updateCurrentFigures(formatGameTime(0), nation.population.population, nation.food.food, nation.territory.territory);
+	  updateCurrentFigures(formatGameTime(0), nation);
 	  return nation;
 	}
 	
 	window.addEventListener('load', function () {
 	  var multiplier = 1;
-	  var nation = startNation();
+	  var nation = startNation(); // eslint-disable-line
 	
-	  var startTime = Date.now();
+	  var startTime = Date.now(); // eslint-disable-line
 	  var lastTick = startTime;
 	  setInterval(function () {
 	    var thisTick = Date.now();
 	    var tickTime = convertToGameTime(thisTick - startTime, multiplier);
 	    var tickLength = convertToGameTime(thisTick - lastTick, multiplier);
 	    nation.tickUpdate(tickLength);
-	    updateCurrentFigures(formatGameTime(tickTime), nation.population.population, nation.food.food, nation.territory.territory);
+	    updateCurrentFigures(formatGameTime(tickTime), nation);
 	    lastTick = thisTick;
 	  }, 1000 / 60);
-	  document.querySelector('#restartButton').addEventListener('click', function () {
-	    nation = startNation();
-	    startTime = Date.now();
-	    lastTick = startTime;
-	  });
 	});
 
 /***/ },
@@ -212,7 +193,7 @@
 	      var tickLength = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 	
 	      this.population.updateBirthRate(this.food.food, this.territory.territory).updateDeathRate(this.food.food, this.territory.territory);
-	      this.population.tickUpdate(tickLength);
+	      this.population.tickPopulationGrowth(tickLength);
 	      return this;
 	    }
 	  }, {

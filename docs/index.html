@@ -2,36 +2,72 @@
 <html>
   <head>
     <title>Idle Nations Testing</title>
+    <link rel="stylesheet" href="idle-nations.css">
     <script src="idle-nations.bundle.js"></script>
   </head>
   <body>
-    <p><label>Starting Population: <input type="text" id="startingPopulation" value="10"></label></p>
-    <p><label>Food: <input type="text" id="food" value="10"></label></p>
-    <p><label>Territory: <input type="text" id="territory" value="1"></label></p>
-    <p><button id="restartButton">Restart</button></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Tick</th>
-          <th>Population</th>
-          <th>Food</th>
-          <th>Territory</th>
-          <th>Birth Rate</th>
-          <th>Death Rate</th>
-          <th>Growth Rate</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th id="gameTime"></th>
-          <td id="currentPopulation"></td>
-          <td id="currentFood"></td>
-          <td id="currentTerritory"></td>
-          <td id="currentBirthRate"></td>
-          <td id="currentDeathRate"></td>
-          <td id="currentGrowthRate"></td>
-        </tr>
-      </tbody>
-    </table>
+    <h1>Current Date: <span id="currentDate">Day X of Year Y</span>
+      <small>(nation started <span id="realStartDate">Mmm d, yyyy</span>)</small>
+    </h1>
+    <div class="c-resources">
+      <div class="c-resources__resource">
+        <h2>Population: <span id="currentPopulation">X</span></h2>
+        <table class="c-data-table">
+          <colgroup>
+            <col class="c-data-table__label-col">
+            <col class="c-data-table__value-col">
+            <col class="c-data-table__value-col">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Factor</th>
+              <th>Rate</th>
+              <th>Absolute</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Birth Rate</th>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Death Rate</th>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Natural Growth Rate</th>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+          <tbody>
+            <tr>
+              <th>Immigration Rate</th>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Emmigration Rate</th>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Net Immigration Rate</th>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th>Net Population Growth Rate</th>
+              <td></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
   </body>
 </html>
