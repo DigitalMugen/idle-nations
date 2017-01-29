@@ -70,7 +70,10 @@ export default class Nation {
     this.population
       .updateBirthRate(this.food.food, this.territory.territory)
       .updateDeathRate(this.food.food, this.territory.territory);
+    this.food
+      .updateConsumptionRate(this.population.population);
     this.population.tickPopulationGrowth(tickLength);
+    this.food.tickFoodGrowth(tickLength);
     return this;
   }
 }

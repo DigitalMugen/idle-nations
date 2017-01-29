@@ -80,12 +80,134 @@
           Food
           <span data-form="resource"></span>
         </h2>
+        <table class="c-data-table">
+          <colgroup>
+            <col class="c-data-table__label-col">
+            <col class="c-data-table__value-col">
+            <col class="c-data-table__value-col">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Factor</th>
+              <th>Rate</th>
+              <th>Absolute</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Hunting/Gatherting</th>
+              <td data-value="gatheringRate" data-form="percentOfResource"></td>
+              <td data-value="gatheringRate" data-form="value"></td>
+            </tr>
+            <tr>
+              <th>Farming</th>
+              <td data-value="farmingRate" data-form="percentOfResource"></td>
+              <td data-value="farmingRate" data-form="value"></td>
+            </tr>
+            <tr>
+              <th>Consumption</th>
+              <td data-value="consumptionRate" data-form="percentOfResource"></td>
+              <td data-value="consumptionRate" data-form="value"></td>
+            </tr>
+            <tr class="c-data-table__subtotal-row">
+              <th>Net Food Production</th>
+              <td data-value="netProduction" data-form="percentOfResource"></td>
+              <td data-value="netProduction" data-form="value"></td>
+            </tr>
+          </tbody>
+          <tbody>
+            <tr>
+              <th>Imports</th>
+              <td data-value="imports" data-form="percentOfResource"></td>
+              <td data-value="imports" data-form="value"></td>
+            </tr>
+            <tr>
+              <th>Exports</th>
+              <td data-value="exports" data-form="percentOfResource"></td>
+              <td data-value="exports" data-form="value"></td>
+            </tr>
+            <tr class="c-data-table__subtotal-row">
+              <th>Net Food Trade</th>
+              <td data-value="netTrade" data-form="percentOfResource"></td>
+              <td data-value="netTrade" data-form="value"></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th>Net Food Growth</th>
+              <td data-value="netGrowth" data-form="percentOfResource"></td>
+              <td data-value="netGrowth" data-form="value"></td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
       <div class="c-resources__resource" data-resource="territory">
         <h2 class="c-resources__resource-heading">
           Territory
           <span data-form="resource"></span>
         </h2>
+        <table class="c-data-table">
+          <colgroup>
+            <col class="c-data-table__label-col">
+            <col class="c-data-table__value-col">
+            <col class="c-data-table__value-col">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Factor</th>
+              <th>Rate</th>
+              <th>Absolute</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Prospecting</th>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+          <tbody>
+            <tr>
+              <th>Purchased</th>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Sold</th>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="c-data-table__subtotal-row">
+              <th>Diplomatic Territory Gains</th>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+          <tbody>
+            <tr>
+              <th>Territory Claimed</th>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <th>Territory Lost</th>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="c-data-table__subtotal-row">
+              <th>Military Territory Gains</th>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th>Net Territory Growth</th>
+              <td></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </div>
   </body>
