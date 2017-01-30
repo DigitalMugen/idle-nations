@@ -91,7 +91,7 @@
 	  var nation = new _Nation2.default({
 	    population: 10,
 	    food: 10,
-	    territory: 1
+	    territory: 10
 	  });
 	  updateCurrentFigures(formatGameTime(0), nation);
 	  return nation;
@@ -195,7 +195,7 @@
 	
 	    this[sPopulation] = new _Population2.default(config.population || 10);
 	    this[sFood] = new _Food2.default(config.food || 10);
-	    this[sTerritory] = new _Territory2.default(config.territory || 1);
+	    this[sTerritory] = new _Territory2.default(config.territory || 10);
 	  }
 	
 	  /**
@@ -217,7 +217,12 @@
 	      var tickLength = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 	
 	      this.population.updateBirthRate(this.food.food, this.territory.territory).updateDeathRate(this.food.food, this.territory.territory);
-	      this.population.tickPopulationGrowth(tickLength);
+	      this.food.updateGatheringRate(this.population.population, this.territory.territory).updateConsumptionRate(this.population.population);
+	      if (tickLength > 1) {
+	        this.tickUpdate(tickLength - 1);
+	      }
+	      this.population.tickPopulationGrowth(Math.min(tickLength, 1));
+	      this.food.tickFoodGrowth(Math.min(tickLength, 1));
 	      return this;
 	    }
 	  }, {
@@ -400,10 +405,10 @@
 	      var territory = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
 	
 	      var hunger = populationHunger(this.population, food);
-	      var hFactor = Math.log(1 + (Math.E - 1) * hunger) * 5 + 1;
+	      var hFactor = Math.pow(hunger, 2);
 	      var density = populationDensity(this.population, territory);
 	      var sFactor = 0.00001326 - Math.log(1 + (Math.E - 1) * (density / 777)) * 0.00001326;
-	      this[sDeathRate] = 1 / 70 * hFactor + sFactor;
+	      this[sDeathRate] = 1 / 70 + hFactor + sFactor;
 	      return this;
 	    }
 	  }, {
@@ -526,6 +531,11 @@
 	 * Symbols for "private" properties
 	 */
 	var sFood = Symbol('food');
+	var sGatheringRate = Symbol('gatheringRate');
+	var sFarmingRate = Symbol('farmingRate');
+	var sConsumptionRate = Symbol('consumptionRate');
+	var sImports = Symbol('imports');
+	var sExports = Symbol('exports');
 	
 	/**
 	 * Food encapsulation
@@ -546,6 +556,11 @@
 	    _classCallCheck(this, Food);
 	
 	    this[sFood] = startingFood;
+	    this[sGatheringRate] = 0;
+	    this[sFarmingRate] = 0;
+	    this[sConsumptionRate] = 0;
+	    this[sImports] = 0;
+	    this[sExports] = 0;
 	  }
 	
 	  /**
@@ -555,9 +570,74 @@
 	
 	
 	  _createClass(Food, [{
+	    key: 'updateGatheringRate',
+	    value: function updateGatheringRate() {
+	      var population = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+	      var territory = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+	
+	      this[sGatheringRate] = Math.min(Math.pow(territory, 4 / 3), population * 2);
+	      return this;
+	    }
+	  }, {
+	    key: 'updateConsumptionRate',
+	    value: function updateConsumptionRate() {
+	      var population = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+	
+	      this[sConsumptionRate] = Math.max(population, 0);
+	      return this;
+	    }
+	  }, {
+	    key: 'tickFoodGrowth',
+	    value: function tickFoodGrowth() {
+	      var tickLength = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+	
+	      this[sFood] = Math.max(this[sFood] + this.netGrowth * tickLength, 0);
+	      return this;
+	    }
+	  }, {
 	    key: 'food',
 	    get: function get() {
 	      return Math.round(this[sFood]);
+	    }
+	  }, {
+	    key: 'gatheringRate',
+	    get: function get() {
+	      return this[sGatheringRate];
+	    }
+	  }, {
+	    key: 'farmingRate',
+	    get: function get() {
+	      return this[sFarmingRate];
+	    }
+	  }, {
+	    key: 'consumptionRate',
+	    get: function get() {
+	      return this[sConsumptionRate];
+	    }
+	  }, {
+	    key: 'netProduction',
+	    get: function get() {
+	      return this.gatheringRate + this.farmingRate - this.consumptionRate;
+	    }
+	  }, {
+	    key: 'imports',
+	    get: function get() {
+	      return this[sImports];
+	    }
+	  }, {
+	    key: 'exports',
+	    get: function get() {
+	      return this[sExports];
+	    }
+	  }, {
+	    key: 'netTrade',
+	    get: function get() {
+	      return this.imports - this.exports;
+	    }
+	  }, {
+	    key: 'netGrowth',
+	    get: function get() {
+	      return this.netProduction + this.netTrade;
 	    }
 	  }]);
 	
@@ -689,15 +769,42 @@
 	      var resourceField = container.querySelector('[data-form="resource"]');
 	      if (!resourceField) return;
 	      resourceField.textContent = model[baseKey];
-	      var rateFields = Array.from(container.querySelectorAll('[data-form="rate"]'));
-	      for (var i = 0, iLen = rateFields.length; i < iLen; i += 1) {
-	        var key = rateFields[i].getAttribute('data-value');
-	        rateFields[i].textContent = model[key] !== undefined ? ResourceView.formatAsPercent(model[key], 3) : '-';
-	      }
-	      var absoluteFields = Array.from(container.querySelectorAll('[data-form="absolute"]'));
-	      for (var _i = 0, _iLen = absoluteFields.length; _i < _iLen; _i += 1) {
-	        var _key = absoluteFields[_i].getAttribute('data-value');
-	        absoluteFields[_i].textContent = model[_key] !== undefined ? Math.round(model[baseKey] * model[_key]) : '-';
+	      // const rateFields = Array.from(container.querySelectorAll('[data-form="rate"]'));
+	      // for (let i = 0, iLen = rateFields.length; i < iLen; i += 1) {
+	      //   const key = rateFields[i].getAttribute('data-value');
+	      //   rateFields[i].textContent = model[key] !== undefined ?
+	      //     ResourceView.formatAsPercent(model[key], 3) : '-';
+	      // }
+	      // const absoluteFields = Array.from(container.querySelectorAll('[data-form="absolute"]'));
+	      // for (let i = 0, iLen = absoluteFields.length; i < iLen; i += 1) {
+	      //   const key = absoluteFields[i].getAttribute('data-value');
+	      //   absoluteFields[i].textContent = model[key] !== undefined ?
+	      //     Math.round(model[baseKey] * model[key]) : '-';
+	      // }
+	      var fields = Array.from(container.querySelectorAll('[data-value]'));
+	      for (var i = 0, iLen = fields.length; i < iLen; i += 1) {
+	        var field = fields[i];
+	        var key = field.getAttribute('data-value');
+	        if (model[key] === undefined) {
+	          field.textContent = '-';
+	        } else {
+	          switch (field.getAttribute('data-form')) {
+	            case 'rate':
+	              field.textContent = ResourceView.formatAsPercent(model[key], 3);
+	              break;
+	            case 'absolute':
+	              field.textContent = Math.round(model[baseKey] * model[key]);
+	              break;
+	            case 'value':
+	              field.textContent = Math.round(model[key]);
+	              break;
+	            case 'percentOfResource':
+	              field.textContent = ResourceView.formatAsPercent(model[key] / model[baseKey], 3);
+	              break;
+	            default:
+	              field.textContent = model[key];
+	          }
+	        }
 	      }
 	    }
 	  }]);
