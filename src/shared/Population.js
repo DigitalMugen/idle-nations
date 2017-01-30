@@ -167,10 +167,10 @@ export default class Population {
    */
   updateDeathRate(food = 1, territory = 1) {
     const hunger = populationHunger(this.population, food);
-    const hFactor = (Math.log(1 + ((Math.E - 1) * hunger)) * 5) + 1;
+    const hFactor = hunger ** 2;
     const density = populationDensity(this.population, territory);
     const sFactor = 0.00001326 - (Math.log(1 + ((Math.E - 1) * (density / 777))) * 0.00001326);
-    this[sDeathRate] = ((1 / 70) * hFactor) + sFactor;
+    this[sDeathRate] = (1 / 70) + hFactor + sFactor;
     return this;
   }
 }

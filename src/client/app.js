@@ -32,7 +32,7 @@ function startNation() {
   const nation = new Nation({
     population: 10,
     food: 10,
-    territory: 1,
+    territory: 10,
   });
   updateCurrentFigures(formatGameTime(0), nation);
   return nation;

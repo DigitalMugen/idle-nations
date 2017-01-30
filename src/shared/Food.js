@@ -78,11 +78,18 @@ export default class Food {
     return this.netProduction + this.netTrade;
   }
 
+  updateGatheringRate(population = 0, territory = 0) {
+    this[sGatheringRate] = Math.min(territory ** (4 / 3), population * 2);
+    return this;
+  }
+
   updateConsumptionRate(population = 0) {
     this[sConsumptionRate] = Math.max(population, 0);
+    return this;
   }
 
   tickFoodGrowth(tickLength = 0) {
     this[sFood] = Math.max(this[sFood] + (this.netGrowth * tickLength), 0);
+    return this;
   }
 }

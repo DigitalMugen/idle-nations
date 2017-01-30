@@ -51,6 +51,9 @@ export default class ResourceView {
           case 'absolute':
             field.textContent = Math.round(model[baseKey] * model[key]);
             break;
+          case 'value':
+            field.textContent = Math.round(model[key]);
+            break;
           case 'percentOfResource':
             field.textContent = ResourceView.formatAsPercent(model[key] / model[baseKey], 3);
             break;

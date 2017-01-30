@@ -34,7 +34,7 @@ export default class Nation {
   constructor(config = {}) {
     this[sPopulation] = new Population(config.population || 10);
     this[sFood] = new Food(config.food || 10);
-    this[sTerritory] = new Territory(config.territory || 1);
+    this[sTerritory] = new Territory(config.territory || 10);
   }
 
   /**
@@ -71,9 +71,13 @@ export default class Nation {
       .updateBirthRate(this.food.food, this.territory.territory)
       .updateDeathRate(this.food.food, this.territory.territory);
     this.food
+      .updateGatheringRate(this.population.population, this.territory.territory)
       .updateConsumptionRate(this.population.population);
-    this.population.tickPopulationGrowth(tickLength);
-    this.food.tickFoodGrowth(tickLength);
+    if (tickLength > 1) {
+      this.tickUpdate(tickLength - 1);
+    }
+    this.population.tickPopulationGrowth(Math.min(tickLength, 1));
+    this.food.tickFoodGrowth(Math.min(tickLength, 1));
     return this;
   }
 }
